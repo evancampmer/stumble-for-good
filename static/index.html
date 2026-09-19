@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stumble.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Karla:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     Design tokens — lifted from the original bundled index.html
+     so this plain version looks the same. Edit freely from here.
+     ============================================================ */
+  :root {
+    --ink: oklch(22% 0.03 280);
+    --cream: oklch(99% 0.004 95);
+    --page-bg: oklch(96% 0.055 92);
+    --dot: oklch(78% 0.09 60 / 0.5);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Karla', sans-serif;
+    color: var(--ink);
+    background-color: var(--page-bg);
+    background-image: radial-gradient(var(--dot) 1.2px, transparent 1.2px);
+    background-size: 18px 18px;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  #shell {
+    width: 100%;
+    max-width: 760px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 64px;
+    position: relative;
+  }
+  @media (max-width: 859px) {
+    #shell { padding-top: max(24px, env(safe-area-inset-top)); max-width: 560px; }
+  }
+
+  /* -------------------- Header -------------------- */
+  header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    width: 100%;
+    gap: 16px;
+    margin-bottom: 26px;
+  }
+
+  .wordmark {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 46px;
+    line-height: 0.9;
+    margin: 0;
+    letter-spacing: -0.035em;
+  }
+  @media (max-width: 859px) { .wordmark { font-size: 34px; } }
+
+  .wordmark .dot {
+    background-image: conic-gradient(from 12deg, oklch(66% 0.21 250), oklch(70% 0.21 25), oklch(82% 0.18 95), oklch(72% 0.17 170), oklch(70% 0.2 330), oklch(66% 0.21 250));
+    background-size: 120% 120%;
+    background-position: center;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .tagline {
+    margin: 8px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: oklch(45% 0.04 280);
+  }
+
+  .saved-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 2px solid var(--ink);
+    background: var(--cream);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-family: 'Karla', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--ink);
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--ink);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .saved-btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+  .saved-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+
+  /* -------------------- Category chips -------------------- */
+  .chip-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    padding: 2px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  @media (max-width: 859px) {
+    .chip-row { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding: 2px 2px 18px; }
+  }
+
+  .chip {
+    flex-shrink: 0;
+    white-space: nowrap;
+    border: 2px solid var(--ink);
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Karla', sans-serif;
+    font-weight: 700;
+    font-size: 12.5px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--ink);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .chip:hover { transform: translate(-1px, -1px); }
+  .chip:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
+  .chip.active { box-shadow: 1px 1px 0 var(--ink); }
+
+  /* -------------------- Beach ball -------------------- */
+  .ball-bg {
+    background-image:
+      radial-gradient(circle at 32% 26%, oklch(100% 0 0 / 0.6) 0 8%, oklch(100% 0 0 / 0.18) 20%, transparent 46%),
+      radial-gradient(circle at 50% 50%, oklch(96% 0.03 95) 0 13%, oklch(22% 0.03 280) 13% 14.6%, transparent 15%),
+      conic-gradient(from 12deg,
+        oklch(66% 0.21 250) 0 36deg, oklch(99% 0.012 95) 36deg 72deg,
+        oklch(70% 0.21 25) 72deg 108deg, oklch(99% 0.012 95) 108deg 144deg,
+        oklch(82% 0.18 95) 144deg 180deg, oklch(99% 0.012 95) 180deg 216deg,
+        oklch(72% 0.17 170) 216deg 252deg, oklch(99% 0.012 95) 252deg 288deg,
+        oklch(70% 0.2 330) 288deg 324deg, oklch(99% 0.012 95) 324deg 360deg);
+  }
+
+  .stumble-ball {
+    width: 188px;
+    height: 188px;
+    border-radius: 999px;
+    border: 3px solid var(--ink);
+    cursor: pointer;
+    color: var(--ink);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 21px;
+    letter-spacing: 0.01em;
+    text-shadow: 0 1px 0 oklch(100% 0 0 / 0.6);
+    box-shadow: 6px 6px 0 var(--ink), inset -4px -7px 16px oklch(30% 0.06 280 / 0.25);
+    transition: transform 0.14s ease, box-shadow 0.14s ease;
+  }
+  .stumble-ball:hover { animation: ballIdle 1.1s ease-in-out infinite; }
+  .stumble-ball:active { transform: scale(0.96); }
+
+  .small-ball {
+    width: 86px;
+    height: 86px;
+    border-radius: 999px;
+    border: 2.5px solid var(--ink);
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: 3px 3px 0 var(--ink), inset -4px -6px 14px oklch(30% 0.06 280 / 0.18);
+  }
+  @media (max-width: 859px) { .small-ball { width: 74px; height: 74px; } }
+  .small-ball:hover { animation: ballIdle 1.1s ease-in-out infinite; }
+  .small-ball:active { transform: scale(0.94); }
+  .small-ball.ball-out { animation: ballTravel 0.6s cubic-bezier(0.4,0,0.7,0.6) forwards; }
+  .small-ball.ball-in { animation: ballReturn 0.72s cubic-bezier(0.3,0.85,0.3,1) forwards; }
+  .stumble-ball.ball-out { animation: ballTravel 0.6s cubic-bezier(0.4,0,0.7,0.6) forwards; }
+  .stumble-ball.ball-in { animation: ballReturn 0.72s cubic-bezier(0.3,0.85,0.3,1) forwards; }
+
+  .again-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: oklch(45% 0.04 280);
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    margin-top: 40px;
+  }
+  .filter-hint {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: oklch(45% 0.04 280);
+  }
+
+  /* -------------------- Card -------------------- */
+  .card-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 26px;
+    width: 100%;
+  }
+  @media (max-width: 859px) {
+    .card-row { flex-direction: column; gap: 22px; }
+  }
+
+  .card {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    flex-direction: row;
+    background: var(--cream);
+    border: 2.5px solid var(--ink);
+    border-radius: 22px;
+    overflow: hidden;
+  }
+  @media (max-width: 859px) {
+    .card { flex-direction: column; max-width: 460px; }
+  }
+  .card.ball-out { animation: posterOut 0.55s cubic-bezier(0.5,0,0.8,0.4) forwards; }
+  .card.ball-in { animation: posterIn 0.68s cubic-bezier(0.25,0.9,0.3,1); }
+
+  .thumb-box {
+    height: auto;
+    width: 230px;
+    min-height: 160px;
+    flex-shrink: 0;
+    position: relative;
+    border-right: 2.5px solid var(--ink);
+    background-size: cover;
+    background-position: center;
+  }
+  @media (max-width: 859px) {
+    .thumb-box { height: 200px; width: 100%; min-height: 160px; border-right: none; border-bottom: 2.5px solid var(--ink); }
+  }
+
+  .no-thumb-badge {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .no-thumb-badge span {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    background: var(--cream);
+    border: 2px solid var(--ink);
+    padding: 6px 14px;
+    border-radius: 999px;
+  }
+
+  .card-body {
+    padding: 26px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .card-tag {
+    border: 2px solid var(--ink);
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    color: var(--ink);
+  }
+
+  .card-domain {
+    font-family: 'Courier New', monospace;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: oklch(48% 0.04 280);
+  }
+
+  .card-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 10px;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  .card-desc {
+    margin: 0 0 22px;
+    font-size: 15px;
+    line-height: 1.55;
+    color: oklch(40% 0.035 280);
+  }
+
+  .card-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .visit-btn {
+    flex: 1;
+    text-align: center;
+    background: var(--ink);
+    color: oklch(97% 0.02 95);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 14px 16px;
+    border-radius: 999px;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .visit-btn:hover { transform: translate(-1px, -1px); }
+
+  .icon-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 999px;
+    border: 2px solid var(--ink);
+    font-size: 16px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .icon-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
+  .icon-btn.share { background: var(--cream); color: var(--ink); box-shadow: 3px 3px 0 var(--ink); font-size: 16px; }
+  .icon-btn.save { font-size: 18px; box-shadow: 3px 3px 0 var(--ink); }
+
+  @keyframes pop1 { 0% { opacity: 0; transform: scale(0.92) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+  @keyframes pop2 { 0% { opacity: 0; transform: scale(0.92) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+  @keyframes fadeUp { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: translateY(0); } }
+  @keyframes ballIdle {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    45% { transform: translateY(-9px) rotate(-6deg); }
+    70% { transform: translateY(0) rotate(0deg); }
+    85% { transform: translateY(-3px) rotate(2deg); }
+  }
+  @keyframes ballTravel {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    30% { transform: translate(7vw, -18px) rotate(200deg); }
+    60% { transform: translate(15vw, 0) rotate(420deg); }
+    80% { transform: translate(19vw, -12px) rotate(540deg); }
+    100% { transform: translate(22vw, 0) rotate(640deg); }
+  }
+  @keyframes ballReturn {
+    0% { transform: translate(22vw, 0) rotate(640deg); }
+    35% { transform: translate(13vw, -16px) rotate(820deg); }
+    70% { transform: translate(0, 0) rotate(1000deg); }
+    85% { transform: translate(0, -10px) rotate(1020deg); }
+    100% { transform: translate(0, 0) rotate(1040deg); }
+  }
+  @keyframes posterOut {
+    0% { opacity: 1; transform: translateX(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateX(-85vw) rotate(-3deg); }
+  }
+  @keyframes posterIn {
+    0% { opacity: 0; transform: translateX(70vw) rotate(2deg); }
+    70% { opacity: 1; transform: translateX(0) rotate(0deg); }
+    86% { transform: translateX(-9px); }
+    100% { transform: translateX(0); }
+  }
+
+  /* -------------------- Toast -------------------- */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: oklch(97% 0.02 95);
+    padding: 11px 20px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: 3px 3px 0 oklch(62% 0.2 25);
+    animation: fadeUp 0.25s ease;
+    z-index: 60;
+    display: none;
+  }
+  .toast.show { display: block; }
+
+  /* -------------------- Saved panel -------------------- */
+  .saved-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: var(--page-bg);
+    background-image: radial-gradient(var(--dot) 1.2px, transparent 1.2px);
+    background-size: 18px 18px;
+    display: none;
+    flex-direction: column;
+    padding: 70px 20px 40px;
+    z-index: 30;
+  }
+  .saved-overlay.open { display: flex; }
+
+  .saved-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+    max-width: 640px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .saved-header h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: -0.03em;
+    margin: 0;
+  }
+  .done-btn {
+    border: 2px solid var(--ink);
+    background: var(--cream);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-family: 'Karla', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .done-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
+
+  .saved-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    max-width: 640px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .saved-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background: var(--cream);
+    border: 2px solid var(--ink);
+    border-radius: 16px;
+    padding: 14px 16px;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .saved-item-meta { display: flex; align-items: center; gap: 8px; }
+  .saved-item-tag {
+    border: 1.5px solid var(--ink);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 999px;
+    color: var(--ink);
+  }
+  .saved-item-domain {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: oklch(48% 0.04 280);
+  }
+  .saved-item-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 15.5px;
+    letter-spacing: -0.01em;
+  }
+  .saved-item-remove {
+    align-self: flex-start;
+    margin-top: 2px;
+    border: none;
+    background: none;
+    color: oklch(50% 0.04 280);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+  }
+  .no-saved {
+    text-align: center;
+    margin-top: 44px;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: oklch(48% 0.04 280);
+  }
+</style>
+</head>
+<body>
+
+<div id="shell">
+  <header>
+    <div>
+      <h1 class="wordmark">Stumble<span class="dot">.</span></h1>
+      <p class="tagline">The web is still weird. Go find out.</p>
+    </div>
+    <button class="saved-btn" id="savedBtn">♥ Saved <span id="savedCount"></span></button>
+  </header>
+
+  <div class="chip-row" id="chipRow"></div>
+
+  <div id="mainArea"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="saved-overlay" id="savedOverlay">
+  <div class="saved-header">
+    <h2>Kept for later</h2>
+    <button class="done-btn" id="closeSaved">Done</button>
+  </div>
+  <div class="saved-list" id="savedList"></div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — category ids must match the Flask backend's slugs
+   (/api/random?category=<id>).
+   ============================================================ */
+const CATEGORIES = [
+  { id: null, label: 'Surprise Me' },
+  { id: 'smarter', label: 'Make Me Smarter', hue: 250 },
+  { id: 'inspire', label: 'Inspire Me', hue: 30 },
+  { id: 'laugh', label: 'Make Me Laugh', hue: 95 },
+  { id: 'beautiful', label: 'Show Me Something Beautiful', hue: 330 },
+  { id: 'enlighten', label: 'Enlighten Me', hue: 170 },
+];
+
+// Shown only if /api/random is unreachable, so the page never looks broken.
+const FALLBACK_SITES = [
+  { category: 'smarter', title: 'Why Do We Dream? The Neuroscience of Sleep', domain: 'theconversation.com', url: 'https://theconversation.com', description: 'Researchers break down what happens in your brain during REM sleep.', thumbnail: null },
+  { category: 'beautiful', title: 'Free High-Resolution Photography', domain: 'unsplash.com', url: 'https://unsplash.com', description: 'Thousands of striking, free-to-use photos from photographers around the world.', thumbnail: null },
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {
+  selectedCat: undefined,
+  current: null,
+  saved: [],
+  toast: '',
+  animToggle: false,
+  savedOpen: false,
+  ballPhase: 'idle', // 'idle' | 'out' | 'in'
+  thumbBust: 0,       // bumped to cache-bust thumbnail retries (mshots placeholder fix)
+};
+
+let thumbTimers = [];
+let toastTimer = null;
+let settleTimer = null;
+
+function hueFor(id) {
+  const c = CATEGORIES.find(c => c.id === id);
+  return (c && c.hue) || 260;
+}
+function labelFor(id) {
+  const c = CATEGORIES.find(c => c.id === id);
+  return c ? c.label : '';
+}
+function isSaved(url) {
+  return state.saved.some(s => s.url === url);
+}
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : str;
+  return div.innerHTML;
+}
+
+/* ============================================================
+   Thumbnail retry — mshots (WordPress screenshot service) serves
+   a generic placeholder on first request while it renders the
+   real screenshot in the background. Re-request a few times with
+   a cache-busting query param so the real image swaps in.
+   ============================================================ */
+function clearThumbRetries() {
+  thumbTimers.forEach(t => clearTimeout(t));
+  thumbTimers = [];
+}
+function scheduleThumbRetries() {
+  clearThumbRetries();
+  const delays = [2500, 6000, 12000, 20000];
+  thumbTimers = delays.map(ms => setTimeout(() => {
+    state.thumbBust += 1;
+    renderMain();
+  }, ms));
+}
+
+/* ============================================================
+   API
+   ============================================================ */
+async function loadSaved() {
+  try {
+    const res = await fetch('/api/saved');
+    if (!res.ok) throw new Error('bad response');
+    state.saved = await res.json();
+  } catch (e) {
+    state.saved = [];
+  }
+  renderSavedCount();
+  renderSavedList();
+}
+
+async function toggleSave() {
+  const c = state.current;
+  if (!c) return;
+  try {
+    if (isSaved(c.url)) {
+      await fetch('/api/unsave', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: c.url }) });
+      state.saved = state.saved.filter(s => s.url !== c.url);
+    } else {
+      await fetch('/api/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(c) });
+      state.saved = [c, ...state.saved];
+    }
+  } catch (e) {
+    showToast('Could not update saved sites.');
+  }
+  renderMain();
+  renderSavedCount();
+  renderSavedList();
+}
+
+async function unsave(url) {
+  try {
+    await fetch('/api/unsave', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
+  } catch (e) { /* ignore */ }
+  state.saved = state.saved.filter(s => s.url !== url);
+  renderMain();
+  renderSavedCount();
+  renderSavedList();
+}
+
+function share() {
+  const c = state.current;
+  if (!c) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(c.url).then(() => showToast('Link copied!')).catch(() => showToast(c.url));
+  } else {
+    showToast(c.url);
+  }
+}
+
+function showToast(msg) {
+  state.toast = msg;
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.classList.remove('show'); }, 2200);
+}
+
+/* ============================================================
+   MAIN ACTION — stumble to a new site
+   ============================================================ */
+async function pick(catId) {
+  clearThumbRetries();
+
+  if (state.current) {
+    state.ballPhase = 'out';
+    renderMain();
+    await new Promise(r => setTimeout(r, 600));
+  }
+  state.ballPhase = 'in';
+
+  try {
+    const qs = catId ? `?category=${encodeURIComponent(catId)}` : '';
+    const res = await fetch(`/api/random${qs}`);
+    if (!res.ok) throw new Error('bad response');
+    const site = await res.json();
+    state.current = site;
+    state.thumbBust = 0;
+    state.animToggle = !state.animToggle;
+    scheduleThumbRetries();
+  } catch (e) {
+    const pool = catId ? FALLBACK_SITES.filter(s => s.category === catId) : FALLBACK_SITES;
+    const choice = pool.length ? pool[Math.floor(Math.random() * pool.length)] : FALLBACK_SITES[0];
+    state.current = choice;
+    state.thumbBust = 0;
+    state.animToggle = !state.animToggle;
+    showToast("Couldn't reach the server — showing a sample site.");
+  }
+  renderMain();
+  settleBall();
+}
+
+function settleBall() {
+  clearTimeout(settleTimer);
+  settleTimer = setTimeout(() => { state.ballPhase = 'idle'; renderMain(); }, 760);
+}
+
+function selectCategory(catId) {
+  state.selectedCat = catId;
+  renderChips();
+  pick(catId);
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderChips() {
+  const wrap = document.getElementById('chipRow');
+  wrap.innerHTML = '';
+  CATEGORIES.forEach(c => {
+    const active = state.selectedCat !== undefined && state.selectedCat === c.id;
+    const hue = c.hue || 260;
+    const btn = document.createElement('button');
+    btn.className = 'chip' + (active ? ' active' : '');
+    btn.textContent = c.label;
+    btn.style.background = active ? `oklch(78% 0.13 ${hue})` : '';
+    btn.onclick = () => selectCategory(c.id);
+    wrap.appendChild(btn);
+  });
+}
+
+function renderSavedCount() {
+  document.getElementById('savedCount').textContent = state.saved.length ? `(${state.saved.length})` : '';
+}
+
+function renderMain() {
+  const area = document.getElementById('mainArea');
+  const current = state.current;
+  const ballClass = state.ballPhase === 'out' ? ' ball-out' : state.ballPhase === 'in' ? ' ball-in' : '';
+
+  if (!current) {
+    area.innerHTML = `
+      <div class="empty-state">
+        <button class="stumble-ball ball-bg${ballClass}" id="stumbleBtn">STUMBLE</button>
+        <p class="filter-hint">${state.selectedCat ? `Looking for: ${escapeHtml(labelFor(state.selectedCat))}` : 'Pick a mood, or just press it and see.'}</p>
+      </div>`;
+    document.getElementById('stumbleBtn').onclick = () => pick(state.selectedCat === undefined ? null : state.selectedCat);
+    return;
+  }
+
+  const hue = hueFor(current.category);
+  const catLabel = labelFor(current.category);
+  const stripeA = `oklch(90% 0.07 ${hue})`;
+  const stripeB = `oklch(82% 0.12 ${hue})`;
+  const tagBg = `oklch(88% 0.1 ${hue})`;
+  const tagText = `oklch(62% 0.17 ${hue})`;
+
+  const thumbUrl = current.thumbnail
+    ? current.thumbnail + (current.thumbnail.includes('?') ? '&' : '?') + '_r=' + state.thumbBust
+    : null;
+  const thumbStyle = thumbUrl
+    ? `background-image:url('${thumbUrl}');`
+    : `background: repeating-linear-gradient(115deg, ${stripeA} 0px, ${stripeA} 14px, ${stripeB} 14px, ${stripeB} 28px);`;
+
+  const saved = isSaved(current.url);
+  const saveBg = saved ? 'oklch(95% 0.06 20)' : 'white';
+  const saveColor = saved ? 'oklch(50% 0.18 20)' : 'oklch(30% 0.02 264)';
+  const againLabel = state.ballPhase === 'out' ? 'wheee' : 'again';
+
+  area.innerHTML = `
+    <div class="card-row">
+      <div class="card${ballClass}" style="box-shadow: 7px 7px 0 ${tagText};">
+        <div class="thumb-box" style="${thumbStyle}">
+          ${thumbUrl ? '' : `<div class="no-thumb-badge"><span>NO PREVIEW</span></div>`}
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            ${catLabel ? `<span class="card-tag" style="background:${tagBg};">${escapeHtml(catLabel)}</span>` : ''}
+            <span class="card-domain">${escapeHtml(current.domain || '')}</span>
+          </div>
+          <h2 class="card-title">${escapeHtml(current.title || '')}</h2>
+          <p class="card-desc">${escapeHtml(current.description || '')}</p>
+          <div class="card-actions">
+            <a class="visit-btn" href="${current.url}" target="_blank" rel="noopener" style="box-shadow: 3px 3px 0 ${tagText};">Take me there →</a>
+            <button class="icon-btn save" id="saveBtn" style="background:${saveBg}; color:${saveColor};">${saved ? '♥' : '♡'}</button>
+            <button class="icon-btn share" id="shareBtn">⇪</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px; flex-shrink:0;">
+        <button class="small-ball ball-bg${ballClass}" id="againBtn"></button>
+        <span class="again-label">${againLabel}</span>
+      </div>
+    </div>`;
+
+  document.getElementById('saveBtn').onclick = toggleSave;
+  document.getElementById('shareBtn').onclick = share;
+  document.getElementById('againBtn').onclick = () => pick(state.selectedCat === undefined ? null : state.selectedCat);
+}
+
+function renderSavedList() {
+  const list = document.getElementById('savedList');
+  if (!state.saved.length) {
+    list.innerHTML = `<p class="no-saved">Nothing kept yet. Hit the heart on something good.</p>`;
+    return;
+  }
+  list.innerHTML = state.saved.map(s => {
+    const hue = hueFor(s.category);
+    const label = labelFor(s.category);
+    return `
+      <a class="saved-item" href="${s.url}" target="_blank" rel="noopener">
+        <div class="saved-item-meta">
+          ${label ? `<span class="saved-item-tag" style="background:oklch(92% 0.05 ${hue});">${escapeHtml(label)}</span>` : ''}
+          <span class="saved-item-domain">${escapeHtml(s.domain || '')}</span>
+        </div>
+        <span class="saved-item-title">${escapeHtml(s.title || '')}</span>
+        <button class="saved-item-remove" data-url="${encodeURIComponent(s.url)}">Remove</button>
+      </a>`;
+  }).join('');
+  list.querySelectorAll('.saved-item-remove').forEach(btn => {
+    btn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      unsave(decodeURIComponent(btn.dataset.url));
+    };
+  });
+}
+
+/* ============================================================
+   Saved overlay open/close
+   ============================================================ */
+document.getElementById('savedBtn').onclick = () => {
+  state.savedOpen = true;
+  document.getElementById('savedOverlay').classList.add('open');
+};
+document.getElementById('closeSaved').onclick = () => {
+  state.savedOpen = false;
+  document.getElementById('savedOverlay').classList.remove('open');
+};
+
+/* ============================================================
+   INIT
+   ============================================================ */
+renderChips();
+renderMain();
+renderSavedCount();
+loadSaved();
+</script>
+</body>
+</html>
