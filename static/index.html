@@ -6,7 +6,7 @@
 <title>Stumble.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Karla:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Karla:wght@400;500;700&family=Space+Grotesk:wght@500;700&family=Manrope:ital,wght@0,500;0,700;1,500;1,700&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: oklch(22% 0.03 280);
@@ -34,16 +34,16 @@
 
   #shell {
     width: 100%;
-    max-width: 760px;
+    max-width: 1060px;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 40px 20px 64px;
+    align-items: stretch;
+    padding: 40px 40px 64px;
     position: relative;
   }
   @media (max-width: 859px) {
-    #shell { padding-top: max(24px, env(safe-area-inset-top)); max-width: 560px; }
+    #shell { padding: max(24px, env(safe-area-inset-top)) 20px 64px; max-width: 560px; }
   }
 
   /* -------------------- Header -------------------- */
@@ -107,13 +107,13 @@
     display: flex;
     gap: 8px;
     width: 100%;
-    padding: 2px;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-    justify-content: center;
+    padding: 2px 5px 2px 0;
+    margin-bottom: 34px;
+    flex-wrap: nowrap;
+    justify-content: space-between;
   }
   @media (max-width: 859px) {
-    .chip-row { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding: 2px 2px 18px; }
+    .chip-row { overflow-x: auto; justify-content: flex-start; padding: 2px 2px 18px; margin-bottom: 18px; }
   }
 
   .chip {
@@ -188,18 +188,25 @@
   }
 
   .again-label {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 12px;
+    position: relative;
+    width: 64px;
+    height: 18px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-style: italic;
     font-weight: 700;
     letter-spacing: 0.02em;
-    color: oklch(45% 0.04 280);
     text-align: center;
   }
+  .again-label span { position: absolute; inset: 0; }
+  .again-label .again { color: #6D4EB6E7; }
+  .again-label .whee { opacity: 0; color: #5935BC; }
 
   .empty-state {
     display: flex;
     flex-direction: column;
     align-items: center;
+    align-self: center;
     gap: 18px;
     margin-top: 40px;
   }
@@ -215,17 +222,17 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
-    gap: 26px;
+    justify-content: flex-start;
+    gap: 32px;
     width: 100%;
   }
   @media (max-width: 859px) {
-    .card-row { flex-direction: column; gap: 22px; }
+    .card-row { flex-direction: column; justify-content: center; gap: 22px; }
   }
 
   .card {
     width: 100%;
-    max-width: 640px;
+    max-width: 720px;
     display: flex;
     flex-direction: row;
     background: var(--cream);
@@ -522,7 +529,10 @@
     </div>
     <div class="ball-col">
       <button class="small-ball ball-bg" id="againBtn" aria-label="Stumble again"></button>
-      <span class="again-label" id="againLabel">again</span>
+      <div class="again-label" id="againLabel">
+        <span class="again" id="labelAgain">Stumble</span>
+        <span class="whee" id="labelWhee">wheee</span>
+      </div>
     </div>
   </div>
 </div>
@@ -691,6 +701,8 @@ function showToast(msg) {
    Ball hover bounce (JS-driven so it never fights the travel animation)
    ============================================================ */
 function startHover() {
+  // Touch screens report a "hover" on tap, which would leave the ball bouncing forever.
+  if (!window.matchMedia('(hover: hover)').matches) return;
   const ball = $('againBtn');
   if (state.busy || hoverAnim) return;
   hoverAnim = ball.animate([
@@ -704,6 +716,22 @@ function startHover() {
 function stopHover() {
   if (hoverAnim) { hoverAnim.cancel(); hoverAnim = null; }
 }
+
+/* Soft crossfade between "again" and "wheee": fade + slight lift + blur */
+function swapLabel(toWhee, duration = 240) {
+  const out = toWhee ? $('labelAgain') : $('labelWhee');
+  const inn = toWhee ? $('labelWhee') : $('labelAgain');
+  const ease = 'cubic-bezier(0.3, 0.7, 0.3, 1)';
+  out.animate([
+    { opacity: 1, transform: 'translateY(0) scale(1)', filter: 'blur(0)' },
+    { opacity: 0, transform: 'translateY(-5px) scale(0.92)', filter: 'blur(2px)' },
+  ], { duration, easing: ease, fill: 'forwards' });
+  inn.animate([
+    { opacity: 0, transform: 'translateY(5px) scale(0.92)', filter: 'blur(2px)' },
+    { opacity: 1, transform: 'translateY(0) scale(1)', filter: 'blur(0)' },
+  ], { duration, easing: ease, fill: 'forwards' });
+}
+let swapTimer = null;
 
 /* ============================================================
    MAIN ACTION — stumble to a new site
@@ -723,10 +751,11 @@ async function pick(catId) {
   }
 
   const ball = $('againBtn');
+  const label = $('againLabel');
   const card = $('card');
   state.busy = true;
   stopHover();
-  $('againLabel').textContent = 'wheee';
+  swapLabel(true, 200);
 
   // 1. The one ball bounces right toward the screen edge (stays visible),
   //    while the old poster slides off to the left.
@@ -739,6 +768,14 @@ async function pick(catId) {
     { transform: `translate(${dx * 0.85}px, -10px) rotate(600deg)`, offset: 0.82 },
     { transform: `translate(${dx}px, 0) rotate(720deg)` },
   ], { duration: 620, easing: 'cubic-bezier(0.4, 0, 0.6, 1)', fill: 'forwards' });
+  // The label hops along under the ball, a beat behind, with smaller bounces.
+  const labelOut = label.animate([
+    { transform: 'translate(0, 0)' },
+    { transform: `translate(${dx * 0.3}px, -12px)`, offset: 0.3 },
+    { transform: `translate(${dx * 0.62}px, 0)`, offset: 0.6 },
+    { transform: `translate(${dx * 0.85}px, -5px)`, offset: 0.82 },
+    { transform: `translate(${dx}px, 0)` },
+  ], { duration: 620, delay: 70, easing: 'cubic-bezier(0.4, 0, 0.6, 1)', fill: 'both' });
   const posterOut = card.animate([
     { transform: 'translateX(0) rotate(0deg)', opacity: 1 },
     { transform: 'translateX(-110vw) rotate(-3deg)', opacity: 0 },
@@ -767,13 +804,24 @@ async function pick(catId) {
     { transform: 'translate(0, 0) rotate(0deg)' },
   ], { duration: 720, easing: 'cubic-bezier(0.3, 0.8, 0.3, 1)', fill: 'forwards' });
   ballOut.cancel();
+  const labelBack = label.animate([
+    { transform: `translate(${dx}px, 0)` },
+    { transform: `translate(${dx * 0.5}px, -9px)`, offset: 0.4 },
+    { transform: 'translate(0, 0)', offset: 0.75 },
+    { transform: 'translate(0, -5px)', offset: 0.88 },
+    { transform: 'translate(0, 0)' },
+  ], { duration: 720, delay: 70, easing: 'cubic-bezier(0.3, 0.8, 0.3, 1)', fill: 'both' });
+  labelOut.cancel();
+  // Ease "wheee" back into "again" as the ball lands, not after.
+  clearTimeout(swapTimer);
+  swapTimer = setTimeout(() => swapLabel(false, 320), 480);
 
-  await Promise.all([posterIn.finished, ballBack.finished]);
+  await Promise.all([posterIn.finished, ballBack.finished, labelBack.finished]);
   posterIn.cancel();
   ballBack.cancel();
+  labelBack.cancel();
 
   state.busy = false;
-  $('againLabel').textContent = 'again';
   if (fallback) showToast("Couldn't reach the server — showing a sample site.");
   if (ball.matches(':hover')) startHover();
 }
